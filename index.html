@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Priorities — Done by Di</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #ffffff;
+  --sidebar-bg: #f9f6f2;
+  --sidebar-border: #e8ddd2;
+  --card-bg: #fdfaf7;
+  --card-border: #e8ddd2;
+  --hover-bg: #f3ece4;
+  --brown-dark: #5c3820;
+  --brown: #8b5e3c;
+  --brown-mid: #b07d56;
+  --brown-light: #d4a882;
+  --brown-pale: #ede0d0;
+  --brown-faint: #f8f2ec;
+  --gold: #c9a84c;
+  --text: #1a0f07;
+  --text-mid: #5c3820;
+  --text-soft: #7a5c3c;
+  --muted: #a88b72;
+  --success: #3d7a32;
+  --warn: #b07820;
+  --danger: #a03030;
+}
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* CHROME */
+.chrome {
+  height: 40px; background: var(--sidebar-bg);
+  border-bottom: 1px solid var(--sidebar-border);
+  display: flex; align-items: center;
+  padding: 0 16px; gap: 10px; flex-shrink: 0;
+}
+.chrome-title { font-size: 13px; font-weight: 500; color: var(--text); }
+.chrome-spacer { flex: 1; }
+.chrome-meta { font-size: 11px; color: var(--muted); }
+.chrome-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: 5px;
+  border: 1px solid var(--card-border);
+  background: white; color: var(--text-soft);
+  cursor: pointer; font-size: 12px; font-family: 'DM Sans', sans-serif;
+  transition: background 0.15s;
+}
+.chrome-btn:hover { background: var(--hover-bg); }
+.chrome-btn.spinning svg { animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* LAYOUT */
+.app { display: flex; flex: 1; overflow: hidden; }
+
+/* SIDEBAR */
+.sidebar {
+  width: 232px; flex-shrink: 0;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  overflow-y: auto; padding: 6px 0 24px;
+  display: flex; flex-direction: column;
+}
+.sidebar::-webkit-scrollbar { width: 3px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--brown-pale); border-radius: 2px; }
+
+.sb-head {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 8px 4px 10px;
+  font-size: 11.5px; font-weight: 600; color: var(--text-soft);
+  cursor: default; border-radius: 4px; margin: 2px 4px;
+}
+.sb-head .sb-icon { font-size: 13px; }
+
+.sb-link {
+  display: flex; align-items: center; gap: 7px;
+  padding: 4px 8px 4px 24px;
+  font-size: 12.5px; color: var(--text-soft);
+  cursor: pointer; border-radius: 4px; margin: 1px 4px;
+  text-decoration: none;
+  transition: background 0.12s;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sb-link:hover { background: var(--hover-bg); color: var(--text); }
+.sb-link.active { background: var(--brown-pale); color: var(--brown-dark); font-weight: 500; }
+.sb-link .sb-dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+.sb-link .sb-icon { font-size: 12px; flex-shrink: 0; }
+
+.sb-divider { height: 1px; background: var(--sidebar-border); margin: 6px 12px; }
+
+/* CONTENT */
+.content { flex: 1; overflow-y: auto; background: var(--bg); }
+.content::-webkit-scrollbar { width: 5px; }
+.content::-webkit-scrollbar-thumb { background: var(--brown-pale); border-radius: 3px; }
+
+/* PAGE HEADER */
+.page-header { padding: 36px 60px 8px; }
+.page-icon-lg { font-size: 40px; margin-bottom: 10px; }
+.page-title { font-family: 'Lora', serif; font-size: 30px; font-weight: 600; color: var(--text); }
+.page-week { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+/* SECTION HEADER */
+.sec-header {
+  display: flex; align-items: center; gap: 7px;
+  padding: 18px 60px 5px;
+  font-size: 14px; font-weight: 600; color: var(--text);
+}
+.sec-header .toggle { font-size: 9px; color: var(--muted); }
+
+/* DB TOOLBAR */
+.db-bar {
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 60px 8px;
+  border-bottom: 1px solid var(--card-border);
+  margin-bottom: 12px;
+}
+.db-tab {
+  display: flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 5px; font-size: 12px;
+  color: var(--text-soft); cursor: pointer; border: 1px solid transparent;
+  transition: all 0.12s;
+}
+.db-tab:hover { background: var(--hover-bg); }
+.db-tab.active { background: var(--brown-pale); border-color: var(--brown-light); color: var(--brown-dark); font-weight: 500; }
+.db-spacer { flex: 1; }
+.db-icon-btn {
+  padding: 4px 7px; border-radius: 4px; font-size: 11px;
+  color: var(--muted); cursor: pointer; border: none; background: none;
+  font-family: 'DM Sans', sans-serif; transition: background 0.12s;
+}
+.db-icon-btn:hover { background: var(--hover-bg); color: var(--text); }
+.db-new {
+  padding: 4px 10px; background: var(--brown); color: white;
+  border: none; border-radius: 5px; font-size: 12px;
+  font-family: 'DM Sans', sans-serif; cursor: pointer;
+}
+.db-new:hover { background: var(--brown-dark); }
+
+/* ── HABITS ── */
+.habits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+  gap: 8px; padding: 0 60px 4px;
+}
+.hc {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: 6px; padding: 10px 12px 12px;
+  cursor: pointer; transition: box-shadow 0.15s, border-color 0.15s;
+}
+.hc:hover { box-shadow: 0 2px 8px rgba(92,56,32,0.1); border-color: var(--brown-light); }
+.hc.today { border-color: var(--brown-mid); background: #fffbf7; }
+.hc-day { font-size: 11px; font-weight: 500; color: var(--text-soft); margin-bottom: 7px; }
+.hc-day.today-lbl { color: var(--brown); font-weight: 600; }
+.hc-bar-wrap { height: 3px; background: var(--brown-pale); border-radius: 2px; margin-bottom: 4px; overflow: hidden; }
+.hc-bar { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--brown-mid), var(--brown)); transition: width 0.5s; }
+.hc-bar.full { background: linear-gradient(90deg,#5a9a50,#3d7a32); }
+.hc-pct { font-size: 10px; color: var(--muted); margin-bottom: 8px; }
+.hc-pct.full { color: var(--success); }
+.hc-items { display: flex; flex-direction: column; gap: 5px; }
+.hc-row { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--muted); }
+.hc-row.on { color: var(--text); }
+.hc-box {
+  width: 13px; height: 13px; border: 1.5px solid var(--brown-pale);
+  border-radius: 2px; flex-shrink: 0; background: white;
+}
+.hc-box.on { background: var(--brown); border-color: var(--brown); }
+.hc-box.on::after {
+  content: ''; display: block;
+  width: 7px; height: 4px;
+  border-left: 1.5px solid white; border-bottom: 1.5px solid white;
+  transform: rotate(-45deg) translate(2px, 3px);
+}
+
+/* LOAD MORE */
+.load-more-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 60px;
+  font-size: 12px; color: var(--muted);
+  cursor: pointer; border: none; background: none;
+  font-family: 'DM Sans', sans-serif;
+  transition: color 0.12s;
+  text-align: left;
+}
+.load-more-btn:hover { color: var(--brown); }
+.load-more-btn:disabled { opacity: 0.4; cursor: default; }
+
+/* ── WEEK CALENDAR ── */
+.week-cal {
+  padding: 0 60px 16px;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.wc-col { display: flex; flex-direction: column; gap: 5px; }
+.wc-header {
+  text-align: center; padding: 6px 4px;
+  border-radius: 6px 6px 0 0;
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-bottom: 2px solid var(--brown-pale);
+}
+.wc-header.today-col { background: var(--brown-pale); border-color: var(--brown-mid); border-bottom-color: var(--brown); }
+.wc-dow { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.wc-date { font-size: 16px; font-weight: 600; color: var(--text); margin-top: 1px; }
+.wc-date.today-num { color: var(--brown); }
+.wc-body { display: flex; flex-direction: column; gap: 4px; min-height: 80px; }
+.wc-task {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-left: 3px solid var(--brown-light);
+  border-radius: 4px; padding: 5px 7px;
+  font-size: 11px; color: var(--text);
+  cursor: pointer; transition: box-shadow 0.12s;
+  line-height: 1.3;
+}
+.wc-task:hover { box-shadow: 0 2px 6px rgba(92,56,32,0.12); border-color: var(--brown-mid); }
+.wc-task.high { border-left-color: var(--danger); }
+.wc-task.mid { border-left-color: var(--warn); }
+.wc-task.low { border-left-color: var(--success); }
+.wc-task-name { font-weight: 500; margin-bottom: 2px; }
+.wc-task-client { font-size: 10px; color: var(--muted); }
+.wc-empty { font-size: 11px; color: var(--card-border); text-align: center; padding: 12px 0; }
+
+/* ── TASKS LIST ── */
+.tasks-list { padding: 0 60px 16px; }
+.t-row {
+  display: flex; align-items: center;
+  padding: 7px 8px; gap: 8px;
+  border-bottom: 1px solid var(--card-border);
+  cursor: pointer; border-radius: 3px;
+  transition: background 0.12s;
+}
+.t-row:hover { background: var(--brown-faint); }
+.t-check { width: 14px; height: 14px; border: 1.5px solid var(--brown-light); border-radius: 3px; flex-shrink: 0; background: white; }
+.t-name { flex: 1; font-size: 13px; color: var(--text); }
+.t-tags { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.tag { padding: 2px 8px; border-radius: 100px; font-size: 11px; font-weight: 500; }
+.tag-client { background: rgba(139,94,60,0.1); color: var(--brown-dark); }
+.tag-high { background: #fdeaea; color: var(--danger); }
+.tag-mid { background: #fdf5e0; color: var(--warn); }
+.tag-low { background: #edf5eb; color: var(--success); }
+.t-due { font-size: 11px; color: var(--muted); }
+.t-due.over { color: var(--danger); }
+.t-status { padding: 2px 8px; border-radius: 100px; font-size: 11px; font-weight: 500; }
+.t-add { display: flex; align-items: center; gap: 5px; padding: 6px 8px; font-size: 12px; color: var(--muted); cursor: pointer; border-radius: 3px; }
+.t-add:hover { background: var(--brown-faint); color: var(--brown); }
+
+/* ── PROJECTS ── */
+.proj-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(155px,1fr));
+  gap: 10px; padding: 0 60px 16px;
+}
+.proj-card { border: 1px solid var(--card-border); border-radius: 6px; overflow: hidden; cursor: pointer; background: var(--card-bg); transition: box-shadow 0.15s, border-color 0.15s; }
+.proj-card:hover { box-shadow: 0 3px 12px rgba(92,56,32,0.12); border-color: var(--brown-light); }
+.proj-cover { height: 76px; width: 100%; display: flex; align-items: center; justify-content: center; font-size: 26px; }
+.proj-info { padding: 8px 10px; }
+.proj-name { font-size: 12.5px; font-weight: 500; color: var(--text); line-height: 1.35; }
+.proj-add { border: 1px dashed var(--brown-pale); border-radius: 6px; height: 108px; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 12px; cursor: pointer; }
+.proj-add:hover { border-color: var(--brown-light); color: var(--brown); }
+
+/* ── GOALS ── */
+.goals-wrap { padding: 0 60px 16px; display: flex; flex-wrap: wrap; gap: 10px; }
+.goal-pill { display: flex; align-items: center; gap: 8px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 6px; padding: 7px 14px; font-size: 12.5px; color: var(--text-mid); }
+.goal-pill strong { color: var(--brown-dark); }
+
+/* ── LINKS ── */
+.links-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px,1fr)); gap: 8px; padding: 0 60px 32px; }
+.lnk { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 6px; padding: 9px 12px; text-decoration: none; display: flex; align-items: center; gap: 8px; transition: background 0.12s, border-color 0.12s; }
+.lnk:hover { background: var(--hover-bg); border-color: var(--brown-light); }
+.lnk .li { font-size: 14px; }
+.lnk .ln { font-size: 12px; color: var(--text-soft); font-weight: 500; }
+
+/* ── UTILS ── */
+.loading-ph { display: flex; align-items: center; gap: 8px; padding: 16px 0; color: var(--muted); font-size: 12px; }
+.spinner { width: 15px; height: 15px; border: 2px solid var(--brown-pale); border-top-color: var(--brown); border-radius: 50%; animation: spin 0.8s linear infinite; }
+.empty-ph { padding: 14px 0; color: var(--muted); font-size: 12px; }
+.err-bar { margin: 0 60px 12px; padding: 8px 14px; background: #fdeaea; border: 1px solid #f0c0c0; border-radius: 5px; font-size: 12px; color: var(--danger); display: none; }
+.err-bar.show { display: block; }
+
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .page-header, .sec-header, .db-bar, .habits-grid,
+  .week-cal, .tasks-list, .proj-grid,
+  .links-grid, .goals-wrap, .load-more-btn, .err-bar { padding-left: 16px; padding-right: 16px; }
+  .week-cal { grid-template-columns: repeat(7, minmax(80px,1fr)); overflow-x: auto; }
+}
+</style>
+</head>
+<body>
+
+<div class="chrome">
+  <div class="chrome-title">📅 Weekly Priorities</div>
+  <div class="chrome-spacer"></div>
+  <span class="chrome-meta" id="last-updated">Loading…</span>
+  <button class="chrome-btn" id="refreshBtn" onclick="loadAll()">
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <polyline points="23 4 23 10 17 10"/>
+      <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+    </svg>
+    Refresh
+  </button>
+</div>
+
+<div class="app">
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+
+  <div class="sb-head"><span class="sb-icon">💡</span> Idea Box</div>
+  <a class="sb-link" href="https://gmail.com" target="_blank"><span class="sb-icon">✉️</span> Email</a>
+  <a class="sb-link" href="https://www.threads.net" target="_blank"><span class="sb-icon">🧵</span> Thread</a>
+
+  <div class="sb-head" style="margin-top:4px"><span class="sb-icon">📆</span> Weekly</div>
+  <a class="sb-link" href="https://www.notion.so/3298c4e4ee398191afa1d2e28f4195b6" target="_blank"><span class="sb-icon">📖</span> Daily Story</a>
+  <a class="sb-link active" href="#"><span class="sb-icon">📅</span> Weekly Meeting</a>
+
+  <div class="sb-head" style="margin-top:4px"><span class="sb-icon">⬇️</span> Capture</div>
+  <a class="sb-link" href="https://www.notion.so/3b487f8208af4ea1a8a6ea61d5e92699" target="_blank"><span class="sb-icon">✅</span> New Task</a>
+  <a class="sb-link" href="https://www.notion.so/2de8c4e4ee398088af58c411d0a8c296" target="_blank"><span class="sb-icon">📝</span> New Note</a>
+  <a class="sb-link" href="https://www.notion.so/31b8c4e4ee39800c86e2ff5981a28e1a" target="_blank"><span class="sb-icon">📁</span> New Project</a>
+  <a class="sb-link" href="https://www.notion.so/32a8c4e4ee3981c1880bc2904c5749a5" target="_blank"><span class="sb-icon">🗂️</span> New Resource</a>
+
+  <div class="sb-divider"></div>
+
+  <div class="sb-head"><span class="sb-icon">🎯</span> Areas</div>
+  <a class="sb-link" href="https://www.notion.so/32a8c4e4ee3981c1880bc2904c5749a5" target="_blank"><span class="sb-icon">🗃️</span> Areas</a>
+  <a class="sb-link" href="https://www.notion.so/32a8c4e4ee3981c1880bc2904c5749a5" target="_blank"><span class="sb-icon">👥</span> CRM</a>
+  <a class="sb-link" href="https://www.notion.so/3288c4e4ee3981f9a46ac33eb675ea7e" target="_blank"><div class="sb-dot" style="background:#c4793a"></div> Kevin Hood</a>
+  <a class="sb-link" href="https://gmail.com" target="_blank"><span class="sb-icon">✉️</span> Email</a>
+  <a class="sb-link" href="https://www.threads.net/@donebydi" target="_blank"><span class="sb-icon">🧵</span> Threads</a>
+  <a class="sb-link" href="https://www.notion.so/3288c4e4ee3981c9bb00e49346a159d1" target="_blank"><div class="sb-dot" style="background:#4a9e7a"></div> Community</a>
+  <a class="sb-link" href="https://www.notion.so/32a8c4e4ee3981c1880bc2904c5749a5" target="_blank"><span class="sb-icon">👻</span> Ghostwriting</a>
+  <a class="sb-link" href="https://www.notion.so/3288c4e4ee3981b38212e2d16c32a665" target="_blank"><div class="sb-dot" style="background:#e07040"></div> Offers</a>
+  <a class="sb-link" href="https://www.notion.so/32a8c4e4ee3981c1880bc2904c5749a5" target="_blank"><div class="sb-dot" style="background:#c060a0"></div> Learning</a>
+  <a class="sb-link" href="https://www.facebook.com/ads/manager" target="_blank"><div class="sb-dot" style="background:#4070c0"></div> Ads</a>
+  <a class="sb-link" href="https://www.notion.so/32a8c4e4ee3981c1880bc2904c5749a5" target="_blank"><div class="sb-dot" style="background:#c0a030"></div> Sales</a>
+
+  <div class="sb-divider"></div>
+
+  <div class="sb-head"><span class="sb-icon">👥</span> Clients</div>
+  <a class="sb-link" href="https://www.notion.so/3288c4e4ee3981f9a46ac33eb675ea7e" target="_blank"><div class="sb-dot" style="background:#c4793a"></div> Matt / IORE</a>
+  <a class="sb-link" href="https://www.notion.so/3288c4e4ee398194be16eae722b4567b" target="_blank"><div class="sb-dot" style="background:#4a9e7a"></div> Happy & Healthy</a>
+  <a class="sb-link" href="https://www.notion.so/3288c4e4ee3981c9bb00e49346a159d1" target="_blank"><div class="sb-dot" style="background:#8070c0"></div> VA Newbies PH</a>
+  <a class="sb-link" href="https://www.notion.so/32a8c4e4ee3981c1880bc2904c5749a5" target="_blank"><div class="sb-dot" style="background:#b56a7a"></div> Ninka / BAW</a>
+  <a class="sb-link" href="https://www.notion.so/3288c4e4ee398194be16eae722b4567b" target="_blank"><div class="sb-dot" style="background:#4a7aaa"></div> Bru / Bois</a>
+
+  <div class="sb-divider"></div>
+
+  <div class="sb-head"><span class="sb-icon">🗄️</span> Databases</div>
+  <a class="sb-link" href="https://www.notion.so/3b487f8208af4ea1a8a6ea61d5e92699" target="_blank"><span class="sb-icon">✅</span> Tasks</a>
+  <a class="sb-link" href="https://www.notion.so/31b8c4e4ee39800c86e2ff5981a28e1a" target="_blank"><span class="sb-icon">📁</span> Projects</a>
+  <a class="sb-link" href="https://www.notion.so/2de8c4e4ee398088af58c411d0a8c296" target="_blank"><span class="sb-icon">📝</span> Notes</a>
+  <a class="sb-link" href="https://www.notion.so/3298c4e4ee398176a3fbdba2b79a2849" target="_blank"><span class="sb-icon">🗄️</span> The Di Vault</a>
+  <a class="sb-link" href="https://www.notion.so/32a8c4e4ee3981c1880bc2904c5749a5" target="_blank"><span class="sb-icon">🚀</span> Command Center</a>
+
+  <div class="sb-divider"></div>
+
+  <div class="sb-head"><span class="sb-icon">🔗</span> Tools</div>
+  <a class="sb-link" href="https://gmail.com" target="_blank"><span class="sb-icon">📧</span> Gmail</a>
+  <a class="sb-link" href="https://drive.google.com" target="_blank"><span class="sb-icon">💾</span> Google Drive</a>
+  <a class="sb-link" href="https://calendar.google.com" target="_blank"><span class="sb-icon">📅</span> Google Calendar</a>
+  <a class="sb-link" href="https://canva.com" target="_blank"><span class="sb-icon">🎨</span> Canva</a>
+  <a class="sb-link" href="https://app.duda.co" target="_blank"><span class="sb-icon">🖥️</span> Duda</a>
+  <a class="sb-link" href="https://semrush.com" target="_blank"><span class="sb-icon">📈</span> SEMrush</a>
+  <a class="sb-link" href="https://donebydi.com" target="_blank"><span class="sb-icon">🌐</span> donebydi.com</a>
+
+</aside>
+
+<!-- ── CONTENT ── -->
+<div class="content">
+
+  <div class="page-header">
+    <div class="page-icon-lg">📅</div>
+    <div class="page-title">Weekly Priorities</div>
+    <div class="page-week" id="week-label">Loading…</div>
+  </div>
+
+  <div class="err-bar" id="errorBar"></div>
+
+  <!-- DAILY HABITS -->
+  <div class="sec-header"><span class="toggle">▼</span> Daily Habits</div>
+  <div class="db-bar">
+    <div class="db-tab active">✓ Daily Habits</div>
+    <div class="db-spacer"></div>
+    <button class="db-icon-btn">Filter</button>
+    <button class="db-icon-btn">Sort</button>
+    <button class="db-icon-btn">···</button>
+    <button class="db-new">New ▾</button>
+  </div>
+  <div class="habits-grid" id="habitsGrid">
+    <div class="loading-ph" style="grid-column:1/-1"><div class="spinner"></div> Loading habits…</div>
+  </div>
+  <button class="load-more-btn" id="loadMoreBtn" onclick="loadMoreHabits()">↓ Load more</button>
+
+  <!-- WEEK CALENDAR -->
+  <div class="sec-header" style="margin-top:8px"><span class="toggle">▼</span> 📆 This Week's Tasks</div>
+  <div class="db-bar">
+    <div class="db-tab active">📆 Week View</div>
+    <div class="db-spacer"></div>
+    <button class="db-icon-btn" onclick="prevWeek()">← Prev</button>
+    <span id="cal-range" style="font-size:11px;color:var(--muted);padding:0 6px"></span>
+    <button class="db-icon-btn" onclick="nextWeek()">Next →</button>
+    <button class="db-icon-btn">···</button>
+    <a class="db-new" href="https://www.notion.so/3b487f8208af4ea1a8a6ea61d5e92699" target="_blank">Open in Notion</a>
+  </div>
+  <div class="week-cal" id="weekCal">
+    <div class="loading-ph" style="grid-column:1/-1"><div class="spinner"></div> Loading calendar…</div>
+  </div>
+
+  <!-- TASKS LIST -->
+  <div class="sec-header" style="margin-top:8px"><span class="toggle">▼</span> Tasks — In Progress</div>
+  <div class="db-bar">
+    <div class="db-tab">💡 Ideas</div>
+    <div class="db-tab active">⚙️ Doing</div>
+    <div class="db-tab">✓ Done</div>
+    <div class="db-spacer"></div>
+    <button class="db-icon-btn">Filter</button>
+    <button class="db-icon-btn">Sort</button>
+    <button class="db-icon-btn">···</button>
+    <button class="db-new">New ▾</button>
+  </div>
+  <div class="tasks-list" id="tasksList">
+    <div class="loading-ph"><div class="spinner"></div> Loading tasks…</div>
+  </div>
+
+  <!-- PROJECTS -->
+  <div class="sec-header" style="margin-top:8px"><span class="toggle">▼</span> Projects</div>
+  <div class="db-bar">
+    <div class="db-tab">□ To-Do</div>
+    <div class="db-tab active">⚙️ Projects</div>
+    <div class="db-tab">✓ Done</div>
+    <div class="db-spacer"></div>
+    <button class="db-icon-btn">···</button>
+    <button class="db-new">New ▾</button>
+  </div>
+  <div class="proj-grid">
+    <div class="proj-card" onclick="window.open('https://www.notion.so/32a8c4e4ee3981c1880bc2904c5749a5','_blank')">
+      <div class="proj-cover" style="background:linear-gradient(135deg,#c8d8b0,#7a9a60)">🏡</div>
+      <div class="proj-info"><div class="proj-name">🏡 Holy Circle Outhouse Project</div></div>
+    </div>
+    <div class="proj-card" onclick="window.open('https://donebydimarketing.github.io/va-newbies-join/','_blank')">
+      <div class="proj-cover" style="background:linear-gradient(135deg,#d0c8f0,#8070c0)">🎓</div>
+      <div class="proj-info"><div class="proj-name">🎓 VA Newbies PH Portal</div></div>
+    </div>
+    <div class="proj-card" onclick="window.open('https://www.notion.so/3b487f8208af4ea1a8a6ea61d5e92699','_blank')">
+      <div class="proj-cover" style="background:linear-gradient(135deg,#f5e8d0,#c09860)">🧵</div>
+      <div class="proj-info"><div class="proj-name">🧵 7 Day Threads Writing Sprint</div></div>
+    </div>
+    <div class="proj-card" onclick="window.open('https://www.notion.so/3298c4e4ee398176a3fbdba2b79a2849','_blank')">
+      <div class="proj-cover" style="background:linear-gradient(135deg,#f0e8d0,#c0a060)">📊</div>
+      <div class="proj-info"><div class="proj-name">📊 Shared Dashboard</div></div>
+    </div>
+    <div class="proj-card" onclick="window.open('https://www.notion.so/32a8c4e4ee3981c1880bc2904c5749a5','_blank')">
+      <div class="proj-cover" style="background:linear-gradient(135deg,#e8d8f0,#a080c0)">🚀</div>
+      <div class="proj-info"><div class="proj-name">🚀 Agency Command Center</div></div>
+    </div>
+    <div class="proj-card" onclick="window.open('https://www.notion.so/32a8c4e4ee3981c1880bc2904c5749a5','_blank')">
+      <div class="proj-cover" style="background:#1a1a1a;font-size:10px;font-weight:700;color:white;letter-spacing:0.04em;text-align:center;padding:8px;">ESSENTIAL MARKETING DOCUMENTS</div>
+      <div class="proj-info"><div class="proj-name">📄 Essential Marketing Documents</div></div>
+    </div>
+    <div class="proj-card">
+      <div class="proj-cover" style="background:linear-gradient(135deg,#d0e8d8,#508060)">🤖</div>
+      <div class="proj-info"><div class="proj-name">🤖 Flint — Personal Assistant</div></div>
+    </div>
+    <div class="proj-card">
+      <div class="proj-cover" style="background:linear-gradient(135deg,#fff0e0,#e07030)">🔥</div>
+      <div class="proj-info"><div class="proj-name">🔥 SyrupCRM</div></div>
+    </div>
+    <div class="proj-add">+ New page</div>
+  </div>
+
+  <!-- GOALS -->
+  <div class="sec-header" style="margin-top:8px"><span class="toggle">▼</span> 📌 2026 Goals</div>
+  <div class="goals-wrap">
+    <div class="goal-pill">💰 Scale <strong>Done by Di</strong> to $10K/month</div>
+    <div class="goal-pill">🌱 Grow <strong>VA Newbies PH</strong> community</div>
+    <div class="goal-pill">🎓 Relaunch <strong>TOP U PH</strong> course</div>
+    <div class="goal-pill">🧵 Post on <strong>Threads</strong> daily</div>
+    <div class="goal-pill">📈 Hit <strong>1M followers</strong> managed</div>
+  </div>
+
+  <!-- QUICK LINKS -->
+  <div class="sec-header" style="margin-top:8px"><span class="toggle">▼</span> 🔗 Quick Links</div>
+  <div class="links-grid">
+    <a class="lnk" href="https://www.notion.so/32a8c4e4ee3981c1880bc2904c5749a5" target="_blank"><span class="li">🚀</span><span class="ln">Command Center</span></a>
+    <a class="lnk" href="https://www.notion.so/3298c4e4ee398176a3fbdba2b79a2849" target="_blank"><span class="li">🗄️</span><span class="ln">The Di Vault</span></a>
+    <a class="lnk" href="https://www.notion.so/3b487f8208af4ea1a8a6ea61d5e92699" target="_blank"><span class="li">✅</span><span class="ln">Di's Tasks</span></a>
+    <a class="lnk" href="https://calendar.google.com" target="_blank"><span class="li">📅</span><span class="ln">Calendar</span></a>
+    <a class="lnk" href="https://gmail.com" target="_blank"><span class="li">📧</span><span class="ln">Gmail</span></a>
+    <a class="lnk" href="https://drive.google.com" target="_blank"><span class="li">💾</span><span class="ln">Drive</span></a>
+    <a class="lnk" href="https://canva.com" target="_blank"><span class="li">🎨</span><span class="ln">Canva</span></a>
+    <a class="lnk" href="https://app.duda.co" target="_blank"><span class="li">🖥️</span><span class="ln">Duda</span></a>
+    <a class="lnk" href="https://semrush.com" target="_blank"><span class="li">📈</span><span class="ln">SEMrush</span></a>
+    <a class="lnk" href="https://donebydi.com" target="_blank"><span class="li">🌐</span><span class="ln">donebydi.com</span></a>
+  </div>
+
+</div><!-- /content -->
+</div><!-- /app -->
+
+<script>
+const CONFIG = {
+  NOTION_TOKEN: '',
+  TASKS_DB_ID: '3b487f82-08af-4ea1-a8a6-ea61d5e92699',
+  HABITS_DB_ID: 'YOUR_HABITS_DB_ID_HERE',
+  proxyUrl: 'https://notionoffice.lucky-leaf-1ef3.workers.dev',
+};
+
+const HABITS = ['Work Out/In', 'Daily Email', 'Community'];
+const CLIENT_COLORS = {
+  'Done by Di':'#8b5e3c','Happy & Healthy':'#3d7a32','VA Newbies PH':'#6050a0',
+  'Matt/IORE':'#c4793a','Ninka/Barefoot':'#a04870','Bru/Bois Investments':'#3070a0',
+  'Personal':'#8b7060','AZ Entrepreneurs & Side Hustlers':'#c0a030',
+};
+const STATUS_COLORS = {
+  'Not Started':'#8b7060','In Progress':'#8b5e3c','Done':'#3d7a32',
+  'In Review':'#b07820','Blocked':'#a03030',
+};
+
+// State
+let habitDaysLoaded = 7;
+let allHabitData = {};
+let calWeekOffset = 0; // 0 = current week
+let allTasksWithDue = [];
+
+function isConfigured() {
+  return CONFIG.HABITS_DB_ID !== 'YOUR_HABITS_DB_ID_HERE' && !!CONFIG.proxyUrl;
+}
+
+function getWeekStart(offset = 0) {
+  const now = new Date();
+  const dow = now.getDay();
+  const mon = new Date(now);
+  mon.setDate(now.getDate() - (dow === 0 ? 6 : dow - 1) + offset * 7);
+  mon.setHours(0,0,0,0);
+  return mon;
+}
+
+function getWeekLabel() {
+  const mon = getWeekStart();
+  const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+  const f = d => d.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+  return `Week of ${f(mon)} – ${f(sun)}, ${mon.getFullYear()}`;
+}
+
+function getDays(count, offsetFromToday = 0) {
+  const days = [], today = new Date();
+  for (let i = count - 1; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i + offsetFromToday);
+    days.push(d);
+  }
+  return days;
+}
+
+async function notionQuery(endpoint, body) {
+  const res = await fetch(CONFIG.proxyUrl.replace(/\/$/,'') + endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Notion-Version': '2022-06-28' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error(res.status);
+  return res.json();
+}
+
+// ── HABITS ──
+function habitCard(date, data, isToday, i) {
+  const label = isToday
+    ? '⬤ Today'
+    : '@' + date.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
+  const habits = data || [];
+  const done = habits.filter(h => h.done).length;
+  const pct = Math.round(done / HABITS.length * 100);
+  const full = done === HABITS.length;
+  const emojis = ['😴','💪','🌟','✨','🎉','🔥','⚡'];
+  const emoji = habits.length ? (full ? '🎉' : emojis[i % emojis.length]) : '';
+  return `<div class="hc ${isToday?'today':''}">
+    <div class="hc-day ${isToday?'today-lbl':''}">${label} ${emoji}</div>
+    <div class="hc-bar-wrap"><div class="hc-bar ${full?'full':''}" style="width:${pct}%"></div></div>
+    <div class="hc-pct ${full?'full':''}">${pct}%</div>
+    <div class="hc-items">${HABITS.map(h => {
+      const hit = habits.find(x => x.label === h);
+      const on = hit ? hit.done : false;
+      return `<div class="hc-row ${on?'on':''}"><div class="hc-box ${on?'on':''}"></div><span>${h}</span></div>`;
+    }).join('')}</div>
+  </div>`;
+}
+
+function renderHabits() {
+  const el = document.getElementById('habitsGrid');
+  const today = new Date(); today.setHours(0,0,0,0);
+  const days = getDays(habitDaysLoaded);
+  el.innerHTML = days.map((d, i) => {
+    const key = d.toISOString().split('T')[0];
+    const isToday = d.toDateString() === today.toDateString();
+    return habitCard(d, allHabitData[key], isToday, i);
+  }).join('');
+}
+
+async function loadMoreHabits() {
+  const btn = document.getElementById('loadMoreBtn');
+  btn.disabled = true;
+  btn.textContent = 'Loading…';
+  habitDaysLoaded += 7;
+
+  if (isConfigured()) {
+    try {
+      const ago = new Date(); ago.setDate(ago.getDate() - habitDaysLoaded);
+      const data = await notionQuery(`/databases/${CONFIG.HABITS_DB_ID}/query`, {
+        filter: { property: 'Date', date: { on_or_after: ago.toISOString().split('T')[0] } },
+        sorts: [{ property: 'Date', direction: 'ascending' }]
+      });
+      (data.results || []).forEach(p => {
+        const dv = p.properties.Date?.date?.start;
+        if (!dv) return;
+        allHabitData[dv.split('T')[0]] = HABITS.map(h => ({
+          label: h, done: p.properties[h]?.checkbox === true
+        }));
+      });
+    } catch(e) {}
+  } else {
+    // demo: fill in older days randomly
+    const days = getDays(habitDaysLoaded);
+    days.forEach((d, i) => {
+      const key = d.toISOString().split('T')[0];
+      if (!allHabitData[key]) {
+        allHabitData[key] = HABITS.map(l => ({ label: l, done: Math.random() > 0.35 }));
+      }
+    });
+  }
+
+  renderHabits();
+  btn.disabled = false;
+  btn.textContent = '↓ Load more';
+}
+
+async function loadHabits() {
+  const el = document.getElementById('habitsGrid');
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  if (!isConfigured()) {
+    const days = getDays(7);
+    days.forEach(d => {
+      const key = d.toISOString().split('T')[0];
+      allHabitData[key] = HABITS.map(l => ({ label: l, done: Math.random() > 0.35 }));
+    });
+    renderHabits();
+    return;
+  }
+
+  try {
+    const ago = new Date(); ago.setDate(ago.getDate() - 7);
+    const data = await notionQuery(`/databases/${CONFIG.HABITS_DB_ID}/query`, {
+      filter: { property: 'Date', date: { on_or_after: ago.toISOString().split('T')[0] } },
+      sorts: [{ property: 'Date', direction: 'ascending' }]
+    });
+    allHabitData = {};
+    (data.results || []).forEach(p => {
+      const dv = p.properties.Date?.date?.start;
+      if (!dv) return;
+      allHabitData[dv.split('T')[0]] = HABITS.map(h => ({
+        label: h, done: p.properties[h]?.checkbox === true
+      }));
+    });
+    renderHabits();
+  } catch(e) {
+    el.innerHTML = `<div class="empty-ph" style="grid-column:1/-1">Could not load habits.</div>`;
+  }
+}
+
+// ── WEEK CALENDAR ──
+function renderWeekCal(tasks) {
+  const el = document.getElementById('weekCal');
+  const mon = getWeekStart(calWeekOffset);
+  const days = Array.from({length:7}, (_,i) => { const d = new Date(mon); d.setDate(mon.getDate()+i); return d; });
+  const today = new Date(); today.setHours(0,0,0,0);
+  const DOWS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+  // Update range label
+  const f = d => d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  document.getElementById('cal-range').textContent = `${f(days[0])} – ${f(days[6])}`;
+
+  el.innerHTML = days.map((d, i) => {
+    const key = d.toISOString().split('T')[0];
+    const isToday = d.toDateString() === today.toDateString();
+    const dayTasks = tasks.filter(t => t.due && t.due.startsWith(key));
+    return `<div class="wc-col">
+      <div class="wc-header ${isToday?'today-col':''}">
+        <div class="wc-dow">${DOWS[i]}</div>
+        <div class="wc-date ${isToday?'today-num':''}">${d.getDate()}</div>
+      </div>
+      <div class="wc-body">
+        ${dayTasks.length
+          ? dayTasks.map(t => {
+              const pClass = t.priority?.includes('High') ? 'high' : t.priority?.includes('Medium') ? 'mid' : 'low';
+              const cc = CLIENT_COLORS[t.client] || '#8b5e3c';
+              return `<div class="wc-task ${pClass}" onclick="window.open('${t.url}','_blank')">
+                <div class="wc-task-name">${t.name}</div>
+                ${t.client ? `<div class="wc-task-client" style="color:${cc}">${t.client}</div>` : ''}
+              </div>`;
+            }).join('')
+          : `<div class="wc-empty">—</div>`
+        }
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function prevWeek() { calWeekOffset--; renderWeekCal(allTasksWithDue); }
+function nextWeek() { calWeekOffset++; renderWeekCal(allTasksWithDue); }
+
+// ── TASKS LIST ──
+function renderTasks(tasks) {
+  const el = document.getElementById('tasksList');
+  if (!tasks.length) { el.innerHTML = `<div class="empty-ph">All done! 🎉</div>`; return; }
+  el.innerHTML = tasks.map(t => {
+    const cc = CLIENT_COLORS[t.client] || '#8b5e3c';
+    const ct = t.client ? `<span class="tag tag-client" style="background:${cc}18;color:${cc}">${t.client}</span>` : '';
+    const pt = t.priority?.includes('High') ? '<span class="tag tag-high">🔴 High</span>'
+             : t.priority?.includes('Medium') ? '<span class="tag tag-mid">🟡 Mid</span>'
+             : t.priority?.includes('Low') ? '<span class="tag tag-low">🟢 Low</span>' : '';
+    const sc = STATUS_COLORS[t.status] || '#8b5e3c';
+    const st = `<span class="t-status" style="background:${sc}18;color:${sc}">${t.status}</span>`;
+    let due = '';
+    if (t.due) {
+      const d = new Date(t.due + 'T12:00:00');
+      const ov = d < new Date() && t.status !== 'Done';
+      due = `<span class="t-due ${ov?'over':''}">${ov?'⚠️ ':''}${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>`;
+    }
+    return `<div class="t-row" onclick="window.open('${t.url}','_blank')">
+      <div class="t-check"></div>
+      <div class="t-name">${t.name}</div>
+      <div class="t-tags">${ct}${pt}${due}${st}</div>
+    </div>`;
+  }).join('') + `<div class="t-add">+ New page</div>`;
+}
+
+async function loadTasks() {
+  const el = document.getElementById('tasksList');
+
+  if (!isConfigured()) {
+    const demo = [
+      {name:'Write Threads content batch',client:'Done by Di',priority:'🔴 High',status:'In Progress',url:'#',due:'2026-05-06'},
+      {name:'VA Newbies portal updates',client:'VA Newbies PH',priority:'🔴 High',status:'In Progress',url:'#',due:'2026-05-07'},
+      {name:'Happy & Healthy SEO audit',client:'Happy & Healthy',priority:'🟡 Medium',status:'In Progress',url:'#',due:'2026-05-08'},
+      {name:'Email sequence — Matt/IORE',client:'Matt/IORE',priority:'🟡 Medium',status:'In Progress',url:'#',due:'2026-05-09'},
+      {name:"Weekly priorities update",client:'Personal',priority:'🟢 Low',status:'In Progress',url:'#',due:'2026-05-05'},
+    ];
+    allTasksWithDue = demo;
+    renderTasks(demo);
+    renderWeekCal(demo);
+    return;
+  }
+
+  try {
+    const data = await notionQuery(`/databases/${CONFIG.TASKS_DB_ID}/query`, {
+      filter: { property: 'Status', select: { does_not_equal: 'Done' } },
+      sorts: [{ property: 'Due Date', direction: 'ascending' }],
+      page_size: 50
+    });
+
+    const tasks = (data.results || []).map(p => ({
+      name: p.properties.Task?.title?.[0]?.plain_text || 'Untitled',
+      client: p.properties.Client?.select?.name || '',
+      priority: p.properties.Priority?.select?.name || '',
+      status: p.properties.Status?.select?.name || '',
+      due: p.properties['Due Date']?.date?.start || null,
+      url: p.url
+    }));
+
+    allTasksWithDue = tasks;
+    renderTasks(tasks.filter(t => t.status === 'In Progress'));
+    renderWeekCal(tasks);
+  } catch(e) {
+    el.innerHTML = `<div class="empty-ph">Could not load tasks.</div>`;
+  }
+}
+
+async function loadAll() {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('spinning');
+  habitDaysLoaded = 7;
+  calWeekOffset = 0;
+  document.getElementById('week-label').textContent = getWeekLabel();
+  document.getElementById('last-updated').textContent = 'Updated just now';
+  document.getElementById('errorBar').classList.remove('show');
+  try {
+    await Promise.all([loadHabits(), loadTasks()]);
+  } catch(e) {
+    const b = document.getElementById('errorBar');
+    b.textContent = '⚠️ Could not load data. Check your Worker and Habits DB ID.';
+    b.classList.add('show');
+  }
+  btn.classList.remove('spinning');
+}
+
+loadAll();
+</script>
+</body>
+</html>
